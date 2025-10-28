@@ -1,19 +1,29 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv
 
+# Chỉ load .env khi chạy local
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
-EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-004")
+def get_secret(key: str, default=None):
+    """Ưu tiên lấy từ st.secrets, fallback sang os.getenv"""
+    try:
+        return st.secrets[key]
+    except Exception:
+        return os.getenv(key, default)
+
+# API keys
+GEMINI_API_KEY = get_secret("GOOGLE_API_KEY")
+GEMINI_MODEL = get_secret("GEMINI_MODEL", "gemini-2.5-pro")
+EMBED_MODEL = get_secret("EMBED_MODEL", "text-embedding-004")
 
 # Retrieval
-TOP_K = int(os.getenv("TOP_K", 4))
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 900))
-CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 200))
-MIN_SIMILARITY = float(os.getenv("MIN_SIMILARITY", 0.32))
+TOP_K = int(get_secret("TOP_K", 4))
+CHUNK_SIZE = int(get_secret("CHUNK_SIZE", 900))
+CHUNK_OVERLAP = int(get_secret("CHUNK_OVERLAP", 200))
+MIN_SIMILARITY = float(get_secret("MIN_SIMILARITY", 0.32))
 
 # Persistence
-MONGO_URI = os.getenv("MONGO_URI", "")
-MONGO_DB = os.getenv("MONGO_DB", "chema")
-MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "conversations")
+MONGO_URI = get_secret("MONGO_URI", "")
+MONGO_DB = get_secret("MONGO_DB", "chema")
+MONGO_COLLECTION = get_secret("MONGO_COLLECTION", "conversations")
