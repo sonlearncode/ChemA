@@ -17,3 +17,4 @@ unstructured[docx]
 langchain-text-splitters
 docx2txt
 streamlit-cookies-manager
+pillow

@@ -6,16 +6,13 @@ import os
 
 from tqdm import tqdm
 from docx import Document as DocxDocument
-# Thêm các import cần thiết cho việc xử lý cấu trúc docx
 from docx.document import Document as _Document
 from docx.table import Table
 from docx.text.paragraph import Paragraph
 
-# LangChain imports
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_core.documents import Document
 
-# Import config từ thư mục src
 try:
     from src.config import CHUNK_OVERLAP, CHUNK_SIZE
 except ImportError:
@@ -23,7 +20,6 @@ except ImportError:
     CHUNK_SIZE = 2000
     CHUNK_OVERLAP = 200
 
-# Các thư mục lớp (giữ nguyên)
 RAW_DIRS = [Path("data/raw/lop10"), Path("data/raw/lop11"), Path("data/raw/lop12"), Path("data/raw/quizz")]
 OUT_PATH = Path("data/processed/chunks.jsonl")
 
@@ -33,7 +29,6 @@ def docx_to_markdown_text(doc: _Document) -> str:
     sử dụng các phương thức public API.
     """
     md_lines = []
-    # doc.iter_inner_content() duyệt qua các thành phần (đoạn văn, bảng) theo đúng thứ tự
     for block in doc.iter_inner_content():
         if isinstance(block, Paragraph):
             text = block.text.strip()
@@ -66,7 +61,6 @@ def docx_to_markdown_text(doc: _Document) -> str:
     
     return "\n\n".join(md_lines)
 
-# ==== MAIN ====
 def main():
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -93,15 +87,15 @@ def main():
 
         for fp in tqdm(file_paths, desc=f"Loading files từ {folder.name}"):
             try:
-                # 1. Đọc file .docx bằng python-docx
+                # Đọc file .docx bằng python-docx
                 doc = DocxDocument(fp)
                 
-                # 2. Chuyển sang văn bản Markdown
+                # Chuyển sang văn bản Markdown
                 md_text = docx_to_markdown_text(doc)
                 if not md_text.strip():
                     continue
 
-                # 3. Tách theo cấu trúc tiêu đề
+                # Tách theo cấu trúc tiêu đề
                 chunks = markdown_splitter.split_text(md_text)
                 
                 # Thêm source file vào metadata cho mỗi chunk
@@ -154,6 +148,5 @@ def main():
     print(f"Đã ghi tất cả chunks vào: {OUT_PATH}")
 
 if __name__ == "__main__":
-    # Cài đặt: pip install python-docx langchain-text-splitters tqdm
     main()
 

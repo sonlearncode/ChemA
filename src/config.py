@@ -14,7 +14,7 @@ def get_secret(key: str, default=None):
 
 # API keys
 GEMINI_API_KEY = get_secret("GOOGLE_API_KEY")
-GEMINI_MODEL = get_secret("GEMINI_MODEL", "gemini-2.5-pro")
+GEMINI_MODEL = get_secret("GEMINI_MODEL", "gemini-1.5-flash-8b")
 EMBED_MODEL = get_secret("EMBED_MODEL", "text-embedding-004")
 
 # Retrieval
