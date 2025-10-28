@@ -1,2 +1,4 @@
 .env
 /my_lab
+/data/raw
+/data/history
