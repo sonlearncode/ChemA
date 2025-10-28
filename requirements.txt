@@ -1,0 +1,19 @@
+streamlit
+google-generativeai
+faiss-cpu
+numpy
+pandas
+tqdm
+python-dotenv
+pypdf
+python-docx
+docx2pdf
+fpdf2
+chempy
+langchain
+langchain-community 
+langchain-google-genai
+unstructured "unstructured[docx]"
+langchain-text-splitters
+docx2txt
+streamlit-cookies-manager
