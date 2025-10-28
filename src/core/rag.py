@@ -92,26 +92,35 @@ class RAGEngine:
         )
 
         if has_reliable_context:
-            context_block = "\n\n".join(
-                [
-                    f"Trích dẫn {i+1} (từ [{c['source']} - {c['id']}]):\n---\n{c['text']}\n---"
-                    for i, c in enumerate(contexts)
-                ]
-            )
+            # --- THAY ĐỔI 1: Ghép các nguồn tri thức lại một cách tự nhiên ---
+            # Không còn gọi là "Trích dẫn" nữa.
+            context_block = "\n\n---\n\n".join([c['text'] for c in contexts])
 
-            # --- THAY ĐỔI QUAN TRỌNG NHẤT NẰM Ở ĐÂY ---
+            # --- THAY ĐỔI 2: Thay đổi vai trò (system_prompt) ---
+            # Yêu cầu bot đóng vai chuyên gia, chứ không phải người tổng hợp.
             system_prompt = (
-                "Bạn là ChemA, một trợ lý Hóa học THPT chuyên nghiệp và thân thiện. "
-                "Nhiệm vụ của bạn là tổng hợp thông tin từ các tài liệu tham khảo được cung cấp để đưa ra một câu trả lời **hoàn chỉnh, tự nhiên và dễ hiểu** cho học sinh."
+                "Bạn là ChemA, một chuyên gia Hóa học THPT. "
+                "Vai trò của bạn là cung cấp các câu trả lời sâu sắc, chính xác và dễ hiểu cho học sinh, "
+                "giống như một giáo viên giỏi đang giảng bài."
             )
 
+            # --- THAY ĐỔI 3: Thay đổi nhiệm vụ (prompt) ---
+            # Yêu cầu bot "sử dụng" kiến thức nền, không phải "dựa vào trích dẫn".
             prompt = f"""{system_prompt}
 
-Dưới đây là các trích dẫn từ sách giáo khoa:
+Dưới đây là một số kiến thức nền tảng liên quan đến câu hỏi của học sinh:
+---
 {context_block}
+---
 
-Dựa **chủ yếu** vào các trích dẫn trên, hãy soạn một câu trả lời mạch lạc và đầy đủ để trả lời câu hỏi sau. 
-**QUAN TRỌNG:** Đừng chỉ sao chép lại nội dung từ các trích dẫn. Hãy diễn giải, giải thích và sắp xếp lại thông tin một cách logic như một giáo viên thực thụ. Nếu thông tin không đủ, hãy nói rằng tài liệu không đề cập rõ và bổ sung kiến thức phổ thông (nếu bạn chắc chắn).
+Hãy sử dụng kiến thức nền tảng ở trên, kết hợp với hiểu biết chuyên sâu của bạn, 
+để soạn một câu trả lời **hoàn chỉnh, có chiều sâu và tự nhiên nhất** cho câu hỏi sau.
+
+**QUAN TRỌNG:**
+- **Không** đề cập đến "trích dẫn", "tài liệu tham khảo" hay "kiến thức nền tảng".
+- Hãy trả lời trực tiếp vào vấn đề, diễn giải và phân tích như một chuyên gia.
+- Nếu thông tin cung cấp không đủ, hãy dựa vào kiến thức phổ thông của bạn để trả lời, 
+nhưng nếu bạn không chắc chắn, hãy nói rõ là "Mình không có đủ thông tin chi tiết về vấn đề này".
 
 Câu hỏi: "{question}"
 
@@ -122,7 +131,6 @@ Câu trả lời của bạn:
             answer_text = (resp.text or "").strip()
             return AnswerResult(answer_text, contexts, "rag", float(top_score))
 
-        # Fallback khi không có ngữ cảnh đáng tin cậy (giữ nguyên)
         fallback_prompt = f"""Bạn là trợ lý Hóa học THPT thân thiện.
 Hãy trả lời bằng tiếng Việt, dựa trên kiến thức phổ thông của bạn.
 

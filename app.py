@@ -78,8 +78,9 @@ st.session_state.messages = []
 for turn in st.session_state.turns:
     st.session_state.messages.append({"role": "user", "content": turn.get("question", "")})
     assistant_msg = {"role": "assistant", "content": turn.get("answer", "")}
-    if turn.get("footnote"):
-        assistant_msg["footnote"] = turn["footnote"]
+    # --- THAY ĐỔI: Không tải lại footnote cũ vào tin nhắn nữa ---
+    # if turn.get("footnote"):
+    #     assistant_msg["footnote"] = turn["footnote"]
     st.session_state.messages.append(assistant_msg)
 
 
@@ -110,8 +111,9 @@ with st.sidebar:
 for msg in st.session_state.messages:
     bubble = st.chat_message(msg["role"])
     bubble.write(msg["content"])
-    if msg.get("footnote"):
-        bubble.caption(msg["footnote"])
+    # --- THAY ĐỔI: Không hiển thị footnote nữa ---
+    # if msg.get("footnote"):
+    #     bubble.caption(msg["footnote"])
 
 def _store_turn(question: str, answer: str, metadata: dict, footnote: Optional[str] = None) -> None:
     timestamp = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
@@ -122,6 +124,8 @@ def _store_turn(question: str, answer: str, metadata: dict, footnote: Optional[s
     }
     if metadata:
         turn_entry["metadata"] = metadata
+    
+    # Vẫn lưu footnote trong log (nếu có) nhưng không hiển thị
     if footnote:
         turn_entry["footnote"] = footnote
 
@@ -143,15 +147,16 @@ if prompt:
             with assistant.expander("Gợi ý tính nhanh"):
                 for line in hint_stoichiometry().split("\n"):
                     st.markdown(line)
-
+            
+            # --- THAY ĐỔI: Không thêm footnote vào tin nhắn hiển thị ---
             assistant_message = { 
                 "role": "assistant",
                 "content": response_text,
-                "footnote": "⚖️ Cân bằng phương trình hóa học.",
+                # "footnote": "⚖️ Cân bằng phương trình hóa học.", # Đã ẩn
             }
             st.session_state.messages.append(assistant_message)
             metadata = {"strategy": "balance"}
-            _store_turn(prompt, response_text, metadata, assistant_message.get("footnote"))
+            _store_turn(prompt, response_text, metadata, "⚖️ Cân bằng phương trình hóa học.") # Vẫn lưu log
 
         except Exception as e:
             error_message = "Đã xảy ra lỗi khi cố gắng cân bằng phương trình, vui lòng kiểm tra lại cú pháp."
@@ -175,12 +180,11 @@ if prompt:
             assistant = st.chat_message("assistant")
             assistant.write(answer_text)
 
+            # --- THAY ĐỔI: Không thêm footnote vào tin nhắn hiển thị ---
             assistant_message = {
                 "role": "assistant",
                 "content": answer_text,
-                "footnote": (
-                    "📚 Chúc bạn học tập hiệu quả"
-                ),
+                # "footnote": ("📚 Chúc bạn học tập hiệu quả"), # Đã ẩn
             }
             
             if result:
@@ -213,6 +217,6 @@ if prompt:
 
         if 'assistant_message' in locals():
             st.session_state.messages.append(assistant_message)
-            _store_turn(prompt, answer_text, metadata, assistant_message.get("footnote"))
+            _store_turn(prompt, answer_text, metadata, "📚 Chúc bạn học tập hiệu quả") # Vẫn lưu log
         else:
             print("Lỗi: assistant_message không được định nghĩa.")
