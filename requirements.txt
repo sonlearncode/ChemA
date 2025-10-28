@@ -13,7 +13,7 @@ chempy
 langchain
 langchain-community 
 langchain-google-genai
-unstructured "unstructured[docx]"
+unstructured[docx]
 langchain-text-splitters
 docx2txt
 streamlit-cookies-manager
